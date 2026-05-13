@@ -18,7 +18,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: background-color 1s ease;
+            transition: background 1s ease;
             font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
         }
@@ -164,7 +164,15 @@
             document.getElementById('gVal').textContent = g;
             document.getElementById('bVal').textContent = b;
 
-            document.body.style.backgroundColor = hex;
+            const nextS = (s + 1) % 60;
+            const nextM = s === 59 ? (m + 1) % 60 : m;
+            const nextH = (s === 59 && m === 59) ? (h + 1) % 24 : h;
+            const nr = Math.round(nextH * 255 / 23);
+            const ng = Math.round(nextM * 255 / 59);
+            const nb = Math.round(nextS * 255 / 59);
+            const nextHex = `#${toHex(nr)}${toHex(ng)}${toHex(nb)}`;
+
+            document.body.style.background = `linear-gradient(135deg, ${hex} 0%, ${nextHex} 100%)`;
 
             // バーの高さを更新
             document.getElementById('barR').style.height = `${(r / 255) * 70 + 2}px`;
