@@ -164,15 +164,17 @@
             document.getElementById('gVal').textContent = g;
             document.getElementById('bVal').textContent = b;
 
-            const nextS = (s + 1) % 60;
-            const nextM = s === 59 ? (m + 1) % 60 : m;
-            const nextH = (s === 59 && m === 59) ? (h + 1) % 24 : h;
-            const nr = Math.round(nextH * 255 / 23);
-            const ng = Math.round(nextM * 255 / 59);
-            const nb = Math.round(nextS * 255 / 59);
-            const nextHex = `#${toHex(nr)}${toHex(ng)}${toHex(nb)}`;
+            const totalSec = h * 3600 + m * 60 + s;
+            const futureSec = totalSec + 30;
+            const fh = Math.floor(futureSec / 3600) % 24;
+            const fm = Math.floor((futureSec % 3600) / 60);
+            const fs = futureSec % 60;
+            const fr = Math.round(fh * 255 / 23);
+            const fg = Math.round(fm * 255 / 59);
+            const fb = Math.round(fs * 255 / 59);
+            const futureHex = `#${toHex(fr)}${toHex(fg)}${toHex(fb)}`;
 
-            document.body.style.background = `linear-gradient(135deg, ${hex} 0%, ${nextHex} 100%)`;
+            document.body.style.background = `linear-gradient(to bottom, ${hex} 0%, ${futureHex} 100%)`;
 
             // バーの高さを更新
             document.getElementById('barR').style.height = `${(r / 255) * 70 + 2}px`;
