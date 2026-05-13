@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カラークロック</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 1s ease;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        .time {
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            transition: color 1s ease;
+            line-height: 1;
+        }
+
+        .color-code {
+            font-size: clamp(2rem, 5vw, 4rem);
+            letter-spacing: 0.15em;
+            margin-top: 1rem;
+            transition: color 1s ease;
+        }
+
+        .rgb-values {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            letter-spacing: 0.1em;
+            transition: color 1s ease;
+        }
+
+        .rgb-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .rgb-label {
+            font-size: 0.75em;
+            opacity: 0.6;
+            letter-spacing: 0.3em;
+        }
+
+        .rgb-bar-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            align-items: flex-end;
+            height: 80px;
+        }
+
+        .rgb-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .rgb-bar {
+            width: 24px;
+            border-radius: 4px 4px 0 0;
+            transition: height 1s ease, background-color 1s ease;
+            min-height: 2px;
+        }
+
+        .rgb-bar-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            transition: color 1s ease;
+            opacity: 0.7;
+        }
+
+        .footer-label {
+            position: absolute;
+            bottom: 1.5rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.25em;
+            opacity: 0.4;
+            transition: color 1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="time" id="time"></div>
+    <div class="color-code" id="colorCode"></div>
+
+    <div class="rgb-values">
+        <div class="rgb-item">
+            <span class="rgb-label">RED</span>
+            <span id="rVal"></span>
+        </div>
+        <div class="rgb-item">
+            <span class="rgb-label">GREEN</span>
+            <span id="gVal"></span>
+        </div>
+        <div class="rgb-item">
+            <span class="rgb-label">BLUE</span>
+            <span id="bVal"></span>
+        </div>
+    </div>
+
+    <div class="rgb-bar-container">
+        <div class="rgb-bar-wrapper">
+            <div class="rgb-bar" id="barR"></div>
+            <span class="rgb-bar-label" id="barLabelR">時</span>
+        </div>
+        <div class="rgb-bar-wrapper">
+            <div class="rgb-bar" id="barG"></div>
+            <span class="rgb-bar-label" id="barLabelG">分</span>
+        </div>
+        <div class="rgb-bar-wrapper">
+            <div class="rgb-bar" id="barB"></div>
+            <span class="rgb-bar-label" id="barLabelB">秒</span>
+        </div>
+    </div>
+
+    <div class="footer-label" id="footerLabel">時 → R &nbsp;&nbsp; 分 → G &nbsp;&nbsp; 秒 → B</div>
+
+    <script>
+        function toHex(n) {
+            return n.toString(16).padStart(2, '0').toUpperCase();
+        }
+
+        function setColor(el, color) {
+            el.style.color = color;
+        }
+
+        function update() {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+
+            const r = Math.round(h * 255 / 23);
+            const g = Math.round(m * 255 / 59);
+            const b = Math.round(s * 255 / 59);
+
+            const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+
+            const timeStr = [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
+
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('colorCode').textContent = hex;
+            document.getElementById('rVal').textContent = r;
+            document.getElementById('gVal').textContent = g;
+            document.getElementById('bVal').textContent = b;
+
+            document.body.style.backgroundColor = hex;
+
+            // バーの高さを更新
+            document.getElementById('barR').style.height = `${(r / 255) * 70 + 2}px`;
+            document.getElementById('barG').style.height = `${(g / 255) * 70 + 2}px`;
+            document.getElementById('barB').style.height = `${(b / 255) * 70 + 2}px`;
+
+            document.getElementById('barR').style.backgroundColor = `rgb(${r}, 0, 0)`;
+            document.getElementById('barG').style.backgroundColor = `rgb(0, ${g}, 0)`;
+            document.getElementById('barB').style.backgroundColor = `rgb(0, 0, ${b})`;
+
+            // 輝度に応じてテキスト色を切り替え
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            const textMain = luminance > 0.5 ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.92)';
+            const textSub  = luminance > 0.5 ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)';
+
+            for (const id of ['time', 'colorCode', 'rVal', 'gVal', 'bVal']) {
+                document.getElementById(id).style.color = textMain;
+            }
+            for (const id of ['barLabelR', 'barLabelG', 'barLabelB', 'footerLabel']) {
+                document.getElementById(id).style.color = textSub;
+            }
+            document.querySelectorAll('.rgb-label').forEach(el => el.style.color = textSub);
+        }
+
+        update();
+        setInterval(update, 1000);
+    </script>
+</body>
+</html>
